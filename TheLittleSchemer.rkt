@@ -376,3 +376,83 @@
                  (eqlist? (cdr l1) (cdr l2)))))))
 
 ;;;06 Shadows
+
+(define numbered?
+  (lambda (aexp)
+    (cond
+      ((atom? aexp) (number? aexp))
+      ((eq? (car (cdr aexp)) '+)
+       (and (numbered? (car aexp)) (numbered? (car (cdr (cdr aexp))))))
+      ((eq? (car (cdr aexp)) '*)
+       (and (numbered? (car aexp)) (numbered? (car (cdr (cdr aexp))))))
+      ((eq? (car (cdr aexp)) '^)
+       (and (numbered? (car aexp)) (numbered? (car (cdr (cdr aexp)))))))))
+
+(define value
+  (lambda (aexp)
+    (cond
+      ((atom? aexp) aexp)
+      ((eq? (car (cdr aexp)) '+)
+       (+ (value (car aexp)) (value (car (cdr (cdr aexp))))))
+      ((eq? (car (cdr aexp)) '*)
+       (* (value (car aexp)) (value (car (cdr (cdr aexp))))))
+      ((eq? (car (cdr aexp)) '^)
+       (a^ (value (car aexp)) (value (car (cdr (cdr aexp)))))))))
+
+(define value2
+  (lambda (aexp)
+    (cond
+      ((atom? aexp) aexp)
+      ((eq? (car aexp) '+)
+       (+ (value2 (car (cdr aexp))) (value2 (car (cdr (cdr aexp))))))
+      ((eq? (car aexp) '*)
+       (* (value2 (car (cdr aexp))) (value2 (car (cdr (cdr aexp))))))
+      (else
+       (a^ (value2 (car (cdr aexp))) (value2 (car (cdr (cdr aexp)))))))))
+
+(define 1st-sub-exp
+  (lambda (aexp)
+    (car (cdr aexp))))
+
+(define 2st-sub-exp
+  (lambda (aexp)
+    (car (cdr (cdr aexp)))))
+
+(define operator
+  (lambda (aexp)
+    (car aexp)))
+
+(define value3
+  (lambda (aexp)
+    (cond
+      ((atom? aexp) aexp)
+      ((eq? (operator aexp) '+)
+       (+ (value3 (1st-sub-exp aexp)) (value3 (2st-sub-exp aexp))))
+      ((eq? (operator aexp) '*)
+       (* (value3 (1st-sub-exp aexp)) (value3 (2st-sub-exp aexp))))
+      (else
+       (a^ (value3 (1st-sub-exp aexp)) (value3 (2st-sub-exp aexp)))))))
+      
+(define sero?
+  (lambda (n)
+    (cond
+      ((atom? n) #f)
+      (else (null? n)))))
+
+(define edd1
+  (lambda (n)
+    (cons '() n)))
+
+(define zub1
+  (lambda (n)
+    (cdr n)))
+
+(define e+
+  (lambda (n m)
+    (cond
+      ((sero? m) n)
+      (else
+       (edd1 (e+ n (zub1 m)))))))
+
+
+;;;07 Firends an Relations
