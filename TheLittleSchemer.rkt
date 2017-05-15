@@ -217,13 +217,13 @@
       ((number? (car lat)) (cons (car lat) (all-nums (cdr lat))))
       (else (all-nums (cdr lat))))))
 
-(define eqan?
+(define eqan2?
   (lambda (a1 a2)
     (cond
       ((eq? a1 a2) (atom? a1))
       (else #f))))
 
-(define eqan2?
+(define eqan?
   (lambda (a1 a2)
     (cond
       ((and (number? a1) (number? a2)) (= a1 a2))
@@ -247,3 +247,132 @@
       ((null? lat) '())
       ((one? n) (cdr lat))
       (else (cons (car lat) (arempick2 (sub1 n) (cdr lat)))))))
+
+
+;;;05 Oh My Gawd: It's Full of Stars
+
+(define rember*
+  (lambda (a l)
+    (cond
+      ((null? l) '())
+      ((atom? (car l))
+       (cond
+         ((eq? a (car l)) (rember* a (cdr l)))
+         (else (cons (car l) (rember* a (cdr l))))))
+      (else (cons (rember* a (car l)) (rember* a (cdr l)))))))
+
+(define insertR*
+  (lambda (new old l)
+    (cond
+      ((null? l) '())
+      ((atom? (car l))
+       (cond
+         ((eq? old (car l)) (cons old (cons new (insertR* new old (cdr l)))))
+         (else (cons (car l) (insertR* new old (cdr l))))))
+      (else (cons (insertR* new old (car l)) (insertR* new old (cdr l)))))))
+
+(define occur*
+  (lambda (a l)
+    (cond
+      ((null? l) 0)
+      ((atom? (car l))
+       (cond
+         ((eq? a (car l)) (add1 (occur* a (cdr l))))
+         (else (occur* a (cdr l)))))
+      (else (+ (occur* a (car l)) (occur* a (cdr l)))))))
+
+(define subst*
+  (lambda (new old l)
+    (cond
+      ((null? l) '())
+      ((atom? (car l))
+       (cond
+         ((eq? old (car l)) (cons new (subst* new old (cdr l))))
+         (else (cons (car l) (subst* new old (cdr l))))))
+      (else (cons (subst* new old (car l)) (subst* new old (cdr l)))))))
+
+(define insertL*
+  (lambda (new old l)
+    (cond
+      ((null? l) '())
+      ((atom? (car l))
+       (cond
+         ((eq? old (car l)) (cons new (cons old (insertL* new old (cdr l)))))
+         (else (cons (car l) (insertL* new old (cdr l))))))
+      (else (cons (insertL* new old (car l)) (insertL* new old (cdr l)))))))
+
+(define member2*
+  (lambda (a l)
+    (cond
+      ((null? l) #f)
+      ((atom? (car l))
+       (cond
+         ((eq? a (car l)) #t)
+         (else (member* a (cdr l)))))
+      (else (or (member* a (car l)) (member* a (cdr l)))))))
+
+(define member*
+  (lambda (a l)
+    (cond
+      ((null? l) #f)
+      ((atom? (car l))
+       (or (eq? a (car l))
+           (member* a (cdr l))))
+      (else
+       (or (member* a (car l))
+           (member* a (cdr l)))))))
+
+(define leftmost2
+  (lambda (l)
+    (cond
+      ((null? l) '())
+      ((atom? (car l)) (car l))
+      (else (leftmost (car l))))))
+
+(define leftmost
+  (lambda (l)
+    (cond
+      ((atom? (car l)) (car l))
+      (else (leftmost (car l))))))
+
+(define eqlist2?
+  (lambda (lat1 lat2)
+    (cond
+      ((null? lat1) (null? lat2))
+      ((null? lat2) (null? lat1))
+      ((and (atom? (car lat1)) (atom? (car lat2)))
+       (and (eqan? (car lat1) (car lat2))
+            (eqlist? (cdr lat1) (cdr lat2))))
+      (else
+       (and (eqlist? (car lat1) (car lat2))
+            (eqlist? (cdr lat1) (cdr lat2)))))))
+
+(define eqlist3?
+  (lambda (lat1 lat2)
+    (cond
+      ((and (null? lat1) (null? lat2)) #t)
+      ((or (null? lat1) (null? lat2)) #f)
+      ((and (atom? (car lat1)) (atom? (car lat2)))
+       (and (eqan? (car lat1) (car lat2))
+            (eqlist? (cdr lat1) (cdr lat2))))
+      (else
+       (and (eqlist? (car lat1) (car lat2))
+            (eqlist? (cdr lat1) (cdr lat2)))))))
+
+(define equal?
+  (lambda (s1 s2)
+    (cond
+      ((and (atom? s1) (atom? s2)) (eq? s1 s2))
+      ((or (atom? s1) (atom? s2)) #f)
+      (else
+       (eqlist? s1 s2)))))
+
+(define eqlist?
+  (lambda (l1 l2)
+    (cond
+      ((and (null? l1) (null? l2)) #t)
+      ((or (null? l1) (null? l2)) #f)
+      (else (and (equal? (car l1) (car l2))
+                 (eqlist? (cdr l1) (cdr l2)))))))
+
+;;;06 Shadows
