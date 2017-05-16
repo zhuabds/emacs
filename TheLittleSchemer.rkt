@@ -456,3 +456,197 @@
 
 
 ;;;07 Firends an Relations
+
+(define set?
+  (lambda (lat)
+    (cond
+      ((null? lat) #t)
+      ((member? (car lat) (cdr lat)) #f)
+      (else (set? (cdr lat))))))
+
+(define makeset
+  (lambda (lat)
+    (cond
+      ((null? lat) '())
+      ((member? (car lat) (cdr lat))
+       (cons (car lat) (makeset (multirember (car lat) (cdr lat)))))
+      (else
+       (cons (car lat) (makeset (cdr lat)))))))
+
+(define makeset2
+  (lambda (lat)
+    (cond
+      ((null? lat) '())
+      ((member? (car lat) (cdr lat))
+       (makeset2 (cdr lat)))
+      (else
+       (cons (car lat) (makeset2 (cdr lat)))))))
+
+(define makeset3
+  (lambda (lat)
+    (cond
+      ((null? lat) '())
+      (else
+       (cons (car lat) (makeset3 (multirember (car lat) (cdr lat))))))))
+
+(define subset?
+  (lambda (set1 set2)
+    (cond
+      ((null? set1) #t)
+      ((member? (car set1) set2) (subset? (cdr set1) set2))
+      (else #f))))
+
+(define subset2?
+  (lambda (set1 set2)
+    (cond
+      ((null? set1) #t)
+      (else
+       (and (member? (car set1) set2) (subset2? (cdr set1) set2))))))
+
+(define eqset?
+  (lambda (set1 set2)
+    (and (subset? set1 set2) (subset? set2 set1))))
+
+(define intersect?
+  (lambda (set1 set2)
+    (cond
+    ((null? set1) '#f)
+    (else
+     (or (member? (car set1) set2) (intersect? (cdr set1) set2))))))
+
+(define intersect
+  (lambda (set1 set2)
+    (cond
+      ((null? set1) '())
+      ((member? (car set1) set2)
+       (cons (car set1) (intersect (cdr set1) set2)))
+      (else
+       (intersect (cdr set1) set2)))))
+
+(define union
+  (lambda (set1 set2)
+    (cond
+      ((null? set1) set2)
+      (else
+       (makeset3 (cons (car set1) (union (cdr set1) set2)))))))
+
+(define union2
+  (lambda (set1 set2)
+    (cond
+      ((null? set1) set2)
+      ((member? (car set1) set2)
+       (union2 (cdr set1) set2))
+      (else
+       (cons (car set1) set2)))))
+
+(define xxx
+  (lambda (set1 set2)
+    (cond
+      ((null? set1) '())
+      ((member? (car set1) set2)
+       (xxx (cdr set1) set2))
+      (else
+       (cons (car set1) (xxx (cdr set1) set2))))))
+
+(define intersectall
+  (lambda (l-set)
+    (cond
+      ((null? (cdr l-set)) (car l-set))
+      (else
+       (intersect (car l-set) (intersectall (cdr l-set)))))))
+
+(define a-pair?
+  (lambda (l)
+    (cond
+      ((atom? l) #f)
+      ((null? l) #f)
+      (else
+       (null? (cdr (cdr l)))))))
+
+(define fun?
+  (lambda (rel)
+    (set? (firsts rel))))
+
+(define revrel2
+  (lambda (rel)
+    (cond
+      ((null? rel) '())
+      (else
+       (cons
+        (cons
+         (car (cdr (car rel)))
+         (cons
+          (car (car rel))
+          '()))
+        (revrel2 (cdr rel)))))))
+
+(define afirst
+  (lambda (s)
+    (car s)))
+
+(define asecond
+  (lambda (s)
+    (car (cdr s))))
+
+(define abuild
+  (lambda (s1 s2)
+    (cons s1 (cons s2 '()))))
+
+(define revrel
+  (lambda (rel)
+    (cond
+      ((null? rel) '())
+      (else
+       (cons (abuild
+              (asecond (car rel))
+              (afirst (car rel)))
+             (revrel (cdr rel)))))))
+
+(define revpair
+  (lambda (s)
+    (abuild (asecond s) (afirst s))))
+
+(define revrel3
+  (lambda (rel)
+    (cond
+      ((null? rel) '())
+      (else
+       (cons (revpair (car rel))
+             (revrel3 (cdr rel)))))))
+
+(define fullfun2?
+  (lambda (rel)
+    (fun? (revrel3 rel))))
+
+(define seconds
+  (lambda (s)
+    (cond
+      ((null? s) '())
+      (else
+       (cons (car (cdr (car s))) (seconds (cdr s)))))))
+
+(define fullfun?
+  (lambda (rel)
+    (set? (seconds rel))))          
+
+;; (define cookies
+;;   (lambda ()
+;;     (bake
+;;      (quote (350 degrees))
+;;      (quote (12 minutes))
+;;      (mix
+;;       (quote (walnuts 1 cup))
+;;       (quote (chocolate-chips 16 ounces))
+;;       (mix
+;;        (mix
+;;         (quote (flour 2 cups))
+;;         (quote (oatmeal 2 cups))
+;;         (quote (salt 5 teaspoon))
+;;         (quote (baking-powder 1 teaspoon))
+;;         (quote (baking-soda 1  teaspoon)))
+;;        (mix
+;;         (quote (eggs 2 large))
+;;         (quote (vanilla 1 teaspoon))
+;;         (cream
+;;          (quote (butter 1 cup))
+;;          (quote (sugar 2 cups)))))))))
