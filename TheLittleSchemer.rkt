@@ -650,3 +650,95 @@
 ;;         (cream
 ;;          (quote (butter 1 cup))
 ;;          (quote (sugar 2 cups)))))))))
+
+
+;;;08 Lambda the Ultimate
+
+(define rember-f
+  (λ (test? a l)
+    (cond
+      ((null? l) '())
+      ((test? a (car l)) (cdr l))
+      (else
+       (cons (car l) (rember-f test? a (cdr l)))))))
+
+(define eq?-c
+  (λ (a)
+    (λ (x)
+      (eq? x a))))
+
+(define eq?-salad
+  (eq?-c 'salad))
+
+(define rember-f2
+  (λ (test?)
+    (λ (a l)
+      (cond
+        ((null? l) '())
+        ((test? a (car l)) (cdr l))
+        (else
+         (cons (car l) ((rember-f2 test?) a (cdr l))))))))
+
+(define rember-eq?
+  (rember-f2 eq?))
+
+(define insertL-f
+  (λ (test?)
+    (λ (new old l)
+      (cond
+        ((null? l) '())
+        ((test? old (car l))
+         (cons new (cons old (cdr l))))
+        (else
+         (cons (car l) ((insertL-f test?) new old (cdr l))))))))
+
+(define insertR-f
+  (λ (test?)
+    (λ (new old l)
+      (cond
+        ((null? l) '())
+        ((test? old (car l))
+         (cons old (cons new (cdr l))))
+        (else
+         (cons (car l) ((insertR-f test?) new old (cdr l))))))))
+
+(define seqL
+  (λ (new old l)
+    (cons new (cons old l))))
+
+(define seqR
+  (λ (new old l)
+    (cons old (cons new l))))
+
+(define insert-g
+  (λ (test? seq)
+    (λ (new old l)
+      (cond
+        ((null? l) '())
+        ((test? old (car l)) (seq new old (cdr l)))
+        (else
+         (cons (car l) ((insert-g test? seq) new old (cdr l))))))))
+
+(define insertL-f2
+  (insert-g eq? seqL))
+
+(define insertR-f2
+  (insert-g eq? seqR))
+
+(define insertL-f3
+  (insert-g eq?
+            (λ (new old l)
+              (cons new (cons old l)))))
+
+(define insertR-f3
+  (insert-g eq?
+            (λ (new old l)
+              (cons old (cons new l)))))
+
+(define seqS
+  (λ (new old l)
+    (cons new l)))
+
+;; (define subst2
+;;   (insert-g seqS))
+
