@@ -729,13 +729,85 @@
             (λ (new old l)
               (cons old (cons new l)))))
 
+(define seqS
+  (lambda (new old l)
+    (cons new l)))
 
+(define subst-f
+  (insert-g eq?
+            (lambda (new old l)
+              (cons new l))))
 
+(define atom-to-function
+  (lambda (x)
+    (cond
+      ((eq? x '+) +)
+      ((eq? x '*) *)
+      (else a^))))
 
+(define value-f
+  (lambda (nexp)
+    (cond
+      ((atom? nexp) nexp)
+      (else
+       ((atom-to-function (operator nexp))
+        (value-f (1st-sub-exp nexp))
+        (value-f (2st-sub-exp nexp)))))))
 
+(define multirember-f
+  (lambda (test?)
+    (lambda (a l)
+      (cond
+        ((null? l) '())
+        ((test? a (car l))
+         ((multirember-f test?) a (cdr l)))
+        (else
+         (cons (car l) ((multirember-f test?) a (cdr l))))))))
 
+(define multirember-eq?
+  (multirember-f eq?))
 
+(define atest?
+  (lambda (a)
+    (lambda (b)
+      (eq? a b))))
 
+(define eq?-a
+  (atest? 'a))
+
+(define multiremberT
+  (lambda (test? l)
+    (cond
+      ((null? l) '())
+      ((test? (car l))
+       (multiremberT test? (cdr l)))
+      (else
+       (cons (car l) (multiremberT test? (cdr l)))))))
+
+(define multirember&co
+  (lambda (a lat col)
+    (cond
+      ((null? lat) (col '() '()))
+      ((eq? a (car lat))
+       (multirember&co a (cdr lat)
+                       (lambda (al bl)
+                         (col al (cons (car lat) bl)))))
+      (else
+       (multirember&co a (cdr lat)
+                       (lambda (al bl)
+                         (col (cons (car lat) al) bl)))))))
+
+(define a-friend
+  (lambda (al bl)
+    (null? bl)))
+
+(define new-friend
+  (lambda (al bl)
+    (cons al (cons '列表分割 bl))))
+
+(define last-friend
+  (lambda (al bl)
+    (length al)))
 
 
 
