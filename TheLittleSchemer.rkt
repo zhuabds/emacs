@@ -810,272 +810,90 @@
     (length al)))
 
 
+(define multiinsertLR
+  (lambda (new oldL oldR lat)
+    (cond
+      ((null? lat) '())
+      ((eq? oldL (car lat))
+       (cons new (cons oldL (multiinsertLR new oldL oldR (cdr lat)))))
+      ((eq? oldR (car lat))
+       (cons oldR (cons new (multiinsertLR new oldL oldR (cdr lat)))))
+      (else
+       (cons (car lat) (multiinsertLR new oldL oldR (cdr lat)))))))
 
+(define coln
+  (lambda (newlat L R)
+    (cons L (cons R newlat))))
 
+(define multiinsertLR&co
+  (lambda (new oldL oldR lat col)
+    (cond
+      ((null? lat) (col '() 0 0))
+      ((eq? oldL (car lat))
+       (multiinsertLR&co new oldL oldR (cdr lat)
+                         (lambda (newlat L R)
+                           (col (cons new (cons oldL newlat))
+                                (add1 L) R))))
+      ((eq? oldR (car lat))
+       (multiinsertLR&co new oldL oldR (cdr lat)
+                         (lambda (newlat L R)
+                           (col (cons oldR (cons new newlat))
+                                L (add1 R)))))
+      (else
+       (multiinsertLR&co new oldL oldR (cdr lat)
+                         (lambda (newlat L R)
+                           (col (cons (car lat) newlat) L R)))))))
 
+(define even?
+  (lambda (n)
+    (cond
+      ((= n 1) #f)
+      ((= n 2) #t)
+      (else (even? (- n 2))))))
 
+(define evens-only*
+  (lambda (lat)
+    (cond
+      ((null? lat) '())
+      ((atom? (car lat))
+       (cond
+         ((even? (car lat))
+          (cons (car lat) (evens-only* (cdr lat))))
+         (else
+          (evens-only* (cdr lat)))))
+      (else
+       (cons (evens-only* (car lat)) (evens-only* (cdr lat)))))))
 
+(define even-col
+  (λ (newlat a b)
+    (cons a (cons b newlat))))
 
-
-
-
-
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;08 Lambda the Ultimate
-
-;; (define rember-f
-;;   (λ (test? a l)
-;;     (cond
-;;       ((null? l) '())
-;;       ((test? a (car l)) (cdr l))
-;;       (else
-;;        (cons (car l) (rember-f test? a (cdr l)))))))
-
-;; (define eq?-c
-;;   (λ (a)
-;;     (λ (x)
-;;       (eq? x a))))
-
-;; (define eq?-salad
-;;   (eq?-c 'salad))
-
-;; (define rember-f2
-;;   (λ (test?)
-;;     (λ (a l)
-;;       (cond
-;;         ((null? l) '())
-;;         ((test? a (car l)) (cdr l))
-;;         (else
-;;          (cons (car l) ((rember-f2 test?) a (cdr l))))))))
-
-;; (define rember-eq?
-;;   (rember-f2 eq?))
-
-;; (define insertL-f
-;;   (λ (test?)
-;;     (λ (new old l)
-;;       (cond
-;;         ((null? l) '())
-;;         ((test? old (car l))
-;;          (cons new (cons old (cdr l))))
-;;         (else
-;;          (cons (car l) ((insertL-f test?) new old (cdr l))))))))
-
-;; (define insertR-f
-;;   (λ (test?)
-;;     (λ (new old l)
-;;       (cond
-;;         ((null? l) '())
-;;         ((test? old (car l))
-;;          (cons old (cons new (cdr l))))
-;;         (else
-;;          (cons (car l) ((insertR-f test?) new old (cdr l))))))))
-
-;; (define seqL
-;;   (λ (new old l)
-;;     (cons new (cons old l))))
-
-;; (define seqR
-;;   (λ (new old l)
-;;     (cons old (cons new l))))
-
-;; (define insert-g
-;;   (λ (test? seq)
-;;     (λ (new old l)
-;;       (cond
-;;         ((null? l) '())
-;;         ((test? old (car l)) (seq new old (cdr l)))
-;;         (else
-;;          (cons (car l) ((insert-g test? seq) new old (cdr l))))))))
-
-;; (define insertL-f2
-;;   (insert-g eq? seqL))
-
-;; (define insertR-f2
-;;   (insert-g eq? seqR))
-
-;; (define insertL-f3
-;;   (insert-g eq?
-;;             (λ (new old l)
-;;               (cons new (cons old l)))))
-
-;; (define insertR-f3
-;;   (insert-g eq?
-;;             (λ (new old l)
-;;               (cons old (cons new l)))))
-
-;; (define seqS
-;;   (λ (new old l)
-;;     (cons new l)))
-
-;; (define subst3
-;;   (insert-g eq? seqS))
-
-;; (define seqrem
-;;   (lambda (new old l)
-;;     l))
-
-;; (define yyy
-;;   (insert-g eq? seqrem))
-
-;; (define atom-to-function
-;;   (lambda (x)
-;;     (cond
-;;       ((eq? x '+) +)
-;;       ((eq? x '*) *)
-;;       (else a^))))
-
-;; (define value4
-;;   (lambda (nexp)
-;;     (cond
-;;       ((atom? nexp) nexp)
-;;       (else
-;;        ((atom-to-function (operator nexp))
-;;         (value4 (1st-sub-exp nexp))
-;;         (value4 (2st-sub-exp nexp)))))))
-
-;; (define multirember-f
-;;   (lambda (test?)
-;;     (lambda (a lat)
-;;       (cond
-;;         ((null? lat) '())
-;;         ((test? a (car lat)) ((multirember-f test?) a (cdr lat)))
-;;         (else
-;;          (cons (car lat) ((multirember-f test?) a (cdr lat))))))))
-
-;; (define multirember-eq?
-;;   (multirember-f eq?))
-
-;; (define eq?-a
-;;   (lambda (a)
-;;     (lambda (k)
-;;       (eq? a k))))
-
-;; (define eq?-aa
-;;   (eq?-a 'aa))
-
-;; (define multiremberT
-;;   (lambda (test? lat)
-;;     (cond
-;;       ((null? lat) '())
-;;       ((test? (car lat)) (multiremberT test? (cdr lat)))
-;;       (else
-;;        (cons (car lat) (multiremberT test? (cdr lat)))))))
-
-;; (define a-friend
-;;   (lambda (x y)
-;;     (null? y)))
-
-;; (define a-list
-;;   (lambda (l1 l2)
-;;     (cons l1 (cons 'aaaaaaaaaa l2))))
-
-;; (define multirember&co
-;;   (lambda (a lat col)
-;;     (cond
-;;       ((null? lat) (col '() '()))
-;;       ((eq? a (car lat))
-;;        (multirember&co a (cdr lat)
-;;                        (lambda (l1 l2)
-;;                          (col l1 (cons (car lat) l2)))))
-;;       (else
-;;        (multirember&co a (cdr lat)
-;;                        (lambda (l1 l2)
-;;                          (col (cons (car lat) l1) l2)))))))
-
-;; (define multiinsertLR
-;;   (lambda (new oldL oldR lat)
-;;     (cond
-;;       ((null? lat) '())
-;;       ((eq? oldL (car lat))
-;;        (cond
-;;          ((eq? oldL oldR)
-;;           (cons new (cons oldL (cons new (multiinsertLR new oldL oldR (cdr lat))))))
-;;          (else
-;;           (cons new (cons oldL (multiinsertLR new oldL oldR (cdr lat)))))))
-;;       ((eq? oldR (car lat))
-;;        (cons oldR (cons new (multiinsertLR new oldL oldR (cdr lat)))))
-;;       (else
-;;        (cons (car lat) (multiinsertLR new oldL oldR (cdr lat)))))))
-
-;; (define multiinsertLR2
-;;   (lambda (new oldL oldR lat)
-;;     (cond
-;;       ((null? lat) '())
-;;       ((eq? oldL (car lat))
-;;        (cons new (cons oldL (multiinsertLR2 new oldL oldR (cdr lat)))))
-;;       ((eq? oldR (car lat))
-;;        (cons oldR (cons new (multiinsertLR2 new oldL oldR (cdr lat)))))
-;;       (else
-;;        (cons (car lat) (multiinsertLR2 new oldL oldR (cdr lat)))))))
-
-;; ;;;;;;;;这里往下代码不正确,col的嵌套 一团浆糊
-;; ;;;;;;;;在没有col定义的情况下,怎能正确的书写主体函数???????!!!
-
-;; (define multiinsertLR&co
-;;   (lambda (new oldL oldR lat col)
-;;     (cond
-;;       ((null? lat) (col '() 0 0))
-;;       ((eq? oldL (car lat))
-;;        (multiinsertLR&co new oldL oldR (cdr lat)
-;;                          (lambda (l L R)
-;;                            (col (cons new (cons oldL l)) (add1 L) R))))
-;;       ((eq? oldR (car lat))
-;;        (multiinsertLR&co new oldL oldR (cdr lat)
-;;                          (lambda (l L R)
-;;                            (col (cons oldR (cons new l)) L (add1 R)))))
-;;       (else
-;;        (multiinsertLR&co new oldL oldR (cdr lat)
-;;                          (lambda (l L R)
-;;                            (col (cons (cdr lat) l) L R)))))))
-
-;; (define LR-col
-;;   (lambda (l L R)
-;;     (l)))
-
-;; (define even?
-;;   (lambda (n)
-;;     (cond
-;;       ((= n 0) #t)
-;;       ((= n 1) #f)
-;;      (else
-;;       (even? (- n 2))))))
-
-;; (define evens-only*
-;;   (lambda (lat)
-;;     (cond
-;;       ((null? lat) '())
-;;       ((atom? (car lat))
-;;        (cond
-;;          ((even? (car lat)) (cons (car lat) (evens-only* (cdr lat))))
-;;          (else (evens-only* (cdr lat)))))
-;;       (else
-;;        (cons (evens-only* (car lat)) (evens-only* (cdr lat)))))))
-
-;; (define even-col
-;;   (lambda (j o)
-;;     (cons j (cons 'aaaaaa o))))
-
-;; (define evens-only*&co
-;;   (lambda (lat col)
-;;     (cond
-;;       ((null? lat) (col '() '()))
-;;       ((atom? (car lat))
-;;        (cond
-;;          ((even? (car lat))
-;;           (evens-only*&co (cdr lat)
-;;                           (lambda (j o)
-;;                             (col j (cons (car lat) o)))))
-;;          (else
-;;           (evens-only*&co (cdr lat)
-;;                           (lambda (j o)
-;;                             (col (cons (car lat) j) o))))))
-;;       (else
-;;        (cons (evens-only*&co (car lat) col) (evens-only*&co (cdr lat) col))))))
+(define evens-only*&co
+  (lambda (lat col)
+    (cond
+      ((null? lat) (col '() 0 1))
+      ((atom? (car lat))
+       (cond
+         ((even? (car lat))
+          (evens-only*&co (cdr lat)
+                          (lambda (newlat a b)
+                            (col (cons (car lat) newlat)
+                                 a
+                                 (* (car lat) b)))))
+         (else
+          (evens-only*&co (cdr lat)
+                          (lambda (newlat a b)
+                            (col newlat
+                                 (+ (car lat) a)
+                                 b))))))
+      (else
+       (evens-only*&co (car lat)
+                       (lambda (al ap as)
+                         (evens-only*&co (cdr lat)
+                                         (lambda (dl dp ds)
+                                           (col (cons al dl)
+                                                (+ ap dp)
+                                                (* as ds))))))))))
 
 
 ;; ;;;09 ...and Again, and Again, and Again,...
