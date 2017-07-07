@@ -1,0 +1,38 @@
+* Linux学习
+** 一些技巧
+*** 访问win10的共享文件夹
+    - 建立本地文件夹
+    - 建立关联
+    mount -o username=administrator,password=123 //192.168.9.101/debianmnt /mnt/win10
+    - 取消
+    umount /mnt/win10
+*** 在putty中启用ibus-pinyin
+    1. 设置putty会话环境变量,在终端中依次输入以下命名
+       export XMODIFIERS=@im=ibus
+       export GTK_IM_MODULE=ibus
+       export QT_IM_MODULE=ibus
+    2. 设置终端下的Ibus
+       1. 启动ibus(命令实为重启ibus)
+          ibus-daemon -d -x -r
+       2. 设置当前输入引擎为pinyin(应该就是选择输入法了)
+          ibus engine pinyin
+    3. 启动X下面的程序就可以使用输入法了
+    4. 不足
+       无法通过键盘快捷键进行输入法切换,目前通过右Shift键开启和关闭输入法
+*** 在emacs中使用dictd查字典
+    1. 在系统中安装dictd/dict
+       1. apt-get install dictd dict
+       2. 下载dict-xdict_0.1-5_all.deb安装包,进行安装
+       3. 在终端中测试是否运行正常
+          dict -d xdict linux
+    2. 在Emacs中配置dictionary
+       1. 在~/.emacs.d/lisp/init-locale.el中增加以下配置
+          ;;绑定快捷键C-c-s
+          (global-set-key [(control c)(s)] 'dictionary-lookup-definition)
+          ;; 设置dictd服务器地址
+          (setq dictionary-server "localhost")
+          ;;设置默认辞典,似乎没有作用
+          (setq dictionary-tooltip-dictionary "xdict")
+       2. 在emacs中测试使用
+          打开一个文件,将光标停在一个单词上,C-c-s,就会打开一个新的buffer显示查询结果
+***
